@@ -11,12 +11,12 @@ int detections = 0;
 // Setup
 void setup()
 {
-    Serial.println("=<Setup>=");
     Serial.begin(115200);
     Serial.setDebugOutput(true);
+    Serial.println("===<Setup>===");
 
     // Config
-    Serial.println("==<Config>==");
+    Serial.print("# config: ");
     camera_config_t config;
     config.ledc_channel = LEDC_CHANNEL_0;
     config.ledc_timer = LEDC_TIMER_0;
@@ -38,9 +38,9 @@ void setup()
     config.pin_reset = RESET_GPIO_NUM;
     config.xclk_freq_hz = 20000000;
     config.pixel_format = PIXFORMAT_JPEG;
-    Serial.println("==<Config Complete>==");
+    Serial.println("successful!");
 
-    Serial.println("==<PSRAM>==");
+    Serial.print("# psram: ");
     // init with high specs to pre-allocate larger buffers
     if (psramFound())
     {
@@ -54,7 +54,7 @@ void setup()
         config.jpeg_quality = 12;
         config.fb_count = 1;
     }
-    Serial.println("==<PSRAM Complete>==");
+    Serial.println("succesful!");
 
 #if defined(CAMERA_MODEL_ESP_EYE)
     pinMode(13, INPUT_PULLUP);
@@ -62,11 +62,11 @@ void setup()
 #endif
 
     // Camera init
-    Serial.println("==<Init Camera>==");
+    Serial.print("# camera init: ");
     esp_err_t err = esp_camera_init(&config);
     if (err != ESP_OK)
     {
-        Serial.printf("Camera init failed with error 0x%x", err);
+        Serial.printf("Camera init failed with error 0x%x\n", err);
         return;
     }
 
@@ -80,7 +80,7 @@ void setup()
     }
     // drop down frame size for higher initial frame rate
     s->set_framesize(s, FRAMESIZE_QVGA);
-    Serial.println("==<Init Camera Complete>==");
+    Serial.println("successful!");
 
 #if defined(CAMERA_MODEL_M5STACK_WIDE)
     s->set_vflip(s, 1);
@@ -88,7 +88,7 @@ void setup()
 #endif
 
     // MTMN
-    Serial.println("==<MTMN>==");
+    Serial.print("# mtmn: ");
     mtmn_config = mtmn_init_config();
     mtmn_config.type = FAST;
     mtmn_config.min_face = 80;
@@ -103,8 +103,8 @@ void setup()
     mtmn_config.o_threshold.score = 0.7;
     mtmn_config.o_threshold.nms = 0.7;
     mtmn_config.o_threshold.candidate_number = 1;
-    Serial.println("==<MTMN Complete>==");
-    Serial.println("=<Setup Complete>=");
+    Serial.println("successful!");
+    Serial.println("===<Setup Complete>===");
 }
 
 void loop()
