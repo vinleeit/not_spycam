@@ -53,8 +53,6 @@ This work is originated from ESP32-Cam example from ESP32 board version 2.0.5.
 
 - Add LCD for debugging.
 
-- Set up access point.
-
 - Add fan for cooling.
 
 ## Main Sources

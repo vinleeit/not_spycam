@@ -105,21 +105,13 @@ void setup()
     s->set_framesize(s, FRAMESIZE_QVGA);
   }
 
-  WiFi.begin(ssid, password);
+  WiFi.softAP(ssid, password);
   WiFi.setSleep(false);
-
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("");
-  Serial.println("WiFi connected");
 
   startCameraServer();
 
   Serial.print("Camera Ready! Use 'http://");
-  Serial.print(WiFi.localIP());
+  Serial.print(WiFi.softAPIP());
   Serial.println("' to connect");
 }
 
