@@ -21,8 +21,8 @@
 // ===========================
 // WiFi credentials
 // ===========================
-const char *ssid = "nivra";
-const char *password = "qazwsxedc";
+const char *ssid = "spycam";
+const char *password = "notspycam";
 
 void startCameraServer();
 
