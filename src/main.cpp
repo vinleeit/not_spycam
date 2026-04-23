@@ -14,7 +14,8 @@
 // Select camera model
 // ===================
 // #define CAMERA_MODEL_WROVER_KIT // Has PSRAM
-#define CAMERA_MODEL_AI_THINKER // Has PSRAM
+// #define CAMERA_MODEL_AI_THINKER // Has PSRAM
+#define CAMERA_MODEL_XIAO_ESP32S3 // Has PSRAM
 
 #include "camera_pins.h"
 
@@ -24,17 +25,20 @@
 const char *ssid = "spycam";
 const char *password = "notspycam";
 
+IPAddress local_IP(192, 168, 0, 69);
+IPAddress gateway(192, 168, 0, 1);
+IPAddress subnet(255, 255, 255, 0);
+
 void startCameraServer();
 
 void setup()
 {
   Serial.begin(115200);
   Serial.setDebugOutput(true);
-  Serial.println();
+  Serial.println("Welcome");
 
   camera_config_t config;
-  config.ledc_channel = LEDC_CHANNEL_0;
-  config.ledc_timer = LEDC_TIMER_0;
+  config.ledc_channel = LEDC_CHANNEL_0; config.ledc_timer = LEDC_TIMER_0;
   config.pin_d0 = Y2_GPIO_NUM;
   config.pin_d1 = Y3_GPIO_NUM;
   config.pin_d2 = Y4_GPIO_NUM;
@@ -93,7 +97,7 @@ void setup()
 
   sensor_t *s = esp_camera_sensor_get();
   // initial sensors are flipped vertically and colors are a bit saturated
-  if (s->id.PID == OV2640_PID)
+  if (s->id.PID == OV3660_PID)
   {
     s->set_vflip(s, 1);       // flip it back
     s->set_brightness(s, 1);  // up the brightness just a bit
@@ -105,13 +109,14 @@ void setup()
     s->set_framesize(s, FRAMESIZE_QVGA);
   }
 
-  WiFi.softAP(ssid, password);
+  WiFi.config(local_IP, gateway, subnet);
+  WiFi.begin(ssid, password);
   WiFi.setSleep(false);
 
   startCameraServer();
 
   Serial.print("Camera Ready! Use 'http://");
-  Serial.print(WiFi.softAPIP());
+  Serial.print(WiFi.localIP());
   Serial.println("' to connect");
 }
 
