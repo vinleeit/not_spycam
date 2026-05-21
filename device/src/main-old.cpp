@@ -27,10 +27,9 @@
 const char *ssid = "spycam";
 const char *password = "notspycam";
 
-// Uncomment for using a a wifi instead of creating an access point.
-// IPAddress local_IP(192, 168, 0, 69);
-// IPAddress gateway(192, 168, 0, 1);
-// IPAddress subnet(255, 255, 255, 0);
+IPAddress local_IP(192, 168, 0, 69);
+IPAddress gateway(192, 168, 0, 1);
+IPAddress subnet(255, 255, 255, 0);
 
 void startCameraServer();
 
@@ -116,6 +115,7 @@ void setup()
     // Uncomment for using a wifi instead of creating an access point.
     // WiFi.config(local_IP, gateway, subnet);
     // WiFi.begin(ssid, password);
+    WiFi.softAPConfig(local_IP, gateway, subnet);
     WiFi.softAP(ssid, password);
 
     WiFi.setSleep(false);
@@ -124,6 +124,7 @@ void setup()
 
     Serial.print("Camera Ready! Use 'http://");
     Serial.print(WiFi.softAPIP());
+    // Serial.print(WiFi.localIP());
     Serial.println("' to connect");
 }
 
