@@ -10,7 +10,8 @@
 // ===================
 // #define CAMERA_MODEL_WROVER_KIT // Has PSRAM
 // #define CAMERA_MODEL_AI_THINKER // Has PSRAM
-#define CAMERA_MODEL_XIAO_ESP32S3 // Has PSRAM
+// #define CAMERA_MODEL_XIAO_ESP32S3 // Has PSRAM
+#define CAMERA_MODEL_ESP32S3_DEV // Has PSRAM
 
 #include "camera_pins.h"
 
