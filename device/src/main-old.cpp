@@ -12,13 +12,6 @@
 //            Face Recognition is DISABLED for ESP32 and ESP32-S2, because it takes up from 15
 //            seconds to process single frame. Face Detection is ENABLED if PSRAM is enabled as well
 
-// ===================
-// Select camera model
-// ===================
-// #define CAMERA_MODEL_WROVER_KIT // Has PSRAM
-// #define CAMERA_MODEL_AI_THINKER // Has PSRAM
-#define CAMERA_MODEL_XIAO_ESP32S3 // Has PSRAM
-
 #include "camera_pins.h"
 
 // ===========================

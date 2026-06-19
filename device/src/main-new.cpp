@@ -5,14 +5,6 @@
 #include "soc/soc.h"
 #include "soc/rtc_cntl_reg.h"
 
-// ===================
-// Select camera model
-// ===================
-// #define CAMERA_MODEL_WROVER_KIT // Has PSRAM
-// #define CAMERA_MODEL_AI_THINKER // Has PSRAM
-// #define CAMERA_MODEL_XIAO_ESP32S3 // Has PSRAM
-#define CAMERA_MODEL_ESP32S3_DEV // Has PSRAM
-
 #include "camera_pins.h"
 
 // WiFi credentials
@@ -229,8 +221,6 @@ void captureAndSendFrame()
     // Send binary frame data
     webSocket.sendBIN(fb->buf, fb->len);
 
-    Serial.printf("Frame sent - Size: %d bytes\n", fb->len);
-
     // Return frame buffer
     esp_camera_fb_return(fb);
 }
@@ -279,7 +269,7 @@ void setup()
     // Initialize camera
     if (initCamera())
     {
-        Serial.println("Camera initialized successfully");
+        Serial.println("Camera initialized ssuccessfully");
         camera_initialized = true;
     }
     else
