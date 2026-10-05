@@ -76,6 +76,25 @@
 #define HREF_GPIO_NUM     7     // DVP_HREF
 #define PCLK_GPIO_NUM     13    // DVP_PCLK
 
+#elif defined(CAMERA_MODEL_ESP32S3_AIOT)
+#define PWDN_GPIO_NUM     -1
+#define RESET_GPIO_NUM    -1
+#define XCLK_GPIO_NUM     38    // XMCLK
+#define SIOD_GPIO_NUM     8     // I2C_SDA
+#define SIOC_GPIO_NUM     7     // I2C_SCL
+
+#define Y9_GPIO_NUM       21    // DVP_Y9
+#define Y8_GPIO_NUM       39    // DVP_Y8
+#define Y7_GPIO_NUM       40    // DVP_Y7
+#define Y6_GPIO_NUM       42    // DVP_Y6
+#define Y5_GPIO_NUM       46    // DVP_Y5
+#define Y4_GPIO_NUM       48    // DVP_Y4
+#define Y3_GPIO_NUM       47    // DVP_Y3
+#define Y2_GPIO_NUM       45    // DVP_Y2
+#define VSYNC_GPIO_NUM    17    // DVP_VSYNC
+#define HREF_GPIO_NUM     18    // DVP_HREF
+#define PCLK_GPIO_NUM     41    // DVP_PCLK
+
 #else
 #error "Camera model not selected"
 #endif
