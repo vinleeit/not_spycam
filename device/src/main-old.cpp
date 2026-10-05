@@ -19,19 +19,14 @@
 // ===========================
 const char *ssid = "spycam";
 const char *password = "notspycam";
+const bool is_ap = false;
 
 IPAddress local_IP(192, 168, 0, 69);
 IPAddress gateway(192, 168, 0, 1);
 IPAddress subnet(255, 255, 255, 0);
 
-void startCameraServer();
-
-void setup()
+bool init_camera()
 {
-    Serial.begin(115200);
-    Serial.setDebugOutput(true);
-    Serial.println("Starting...");
-
     camera_config_t config;
     config.ledc_channel = LEDC_CHANNEL_0;
     config.ledc_timer = LEDC_TIMER_0;
@@ -52,9 +47,10 @@ void setup()
     config.pin_pwdn = PWDN_GPIO_NUM;
     config.pin_reset = RESET_GPIO_NUM;
     config.xclk_freq_hz = 20000000;
-    config.frame_size = FRAMESIZE_UXGA;
     config.pixel_format = PIXFORMAT_JPEG; // for streaming
     // config.pixel_format = PIXFORMAT_RGB565; // for face detection/recognition
+
+    config.frame_size = FRAMESIZE_UXGA;
     config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
     config.fb_location = CAMERA_FB_IN_PSRAM;
     config.jpeg_quality = 12;
@@ -83,42 +79,79 @@ void setup()
         config.frame_size = FRAMESIZE_240X240;
     }
 
-    // camera init
-    esp_err_t err = esp_camera_init(&config);
-    if (err != ESP_OK)
+    // Initialize camera
+    if (esp_err_t err = esp_camera_init(&config); err != ESP_OK)
     {
         Serial.printf("Camera init failed with error 0x%x", err);
-        return;
+        return false;
     }
 
+    // Additional sensor settings
     sensor_t *s = esp_camera_sensor_get();
-    // initial sensors are flipped vertically and colors are a bit saturated
-    if (s->id.PID == OV3660_PID || s->id.PID == OV2640_PID)
+    if (s != NULL)
     {
-        s->set_vflip(s, 1);       // flip it back
-        s->set_brightness(s, 1);  // up the brightness just a bit
-        s->set_saturation(s, -2); // lower the saturation
+        s->set_brightness(s, 1);                 // -2 to 2
+        s->set_contrast(s, 0);                   // -2 to 2
+        s->set_saturation(s, -2);                // -2 to 2
+        s->set_special_effect(s, 0);             // 0 to 6 (0-No Effect, 1-Negative, 2-Grayscale, 3-Red Tint, 4-Green Tint, 5-Blue Tint, 6-Sepia)
+        s->set_whitebal(s, 1);                   // 0 = disable , 1 = enable
+        s->set_awb_gain(s, 1);                   // 0 = disable , 1 = enable
+        s->set_wb_mode(s, 0);                    // 0 to 4 - if awb_gain enabled (0 - Auto, 1 - Sunny, 2 - Cloudy, 3 - Office, 4 - Home)
+        s->set_exposure_ctrl(s, 1);              // 0 = disable , 1 = enable
+        s->set_aec2(s, 0);                       // 0 = disable , 1 = enable
+        s->set_ae_level(s, 0);                   // -2 to 2
+        s->set_aec_value(s, 300);                // 0 to 1200
+        s->set_gain_ctrl(s, 1);                  // 0 = disable , 1 = enable
+        s->set_agc_gain(s, 0);                   // 0 to 30
+        s->set_gainceiling(s, (gainceiling_t)0); // 0 to 6
+        s->set_bpc(s, 0);                        // 0 = disable , 1 = enable
+        s->set_wpc(s, 1);                        // 0 = disable , 1 = enable
+        s->set_raw_gma(s, 1);                    // 0 = disable , 1 = enable
+        s->set_lenc(s, 1);                       // 0 = disable , 1 = enable
+        s->set_hmirror(s, 0);                    // 0 = disable , 1 = enable
+        s->set_vflip(s, 1);                      // 0 = disable , 1 = enable
+        s->set_dcw(s, 1);                        // 0 = disable , 1 = enable
+        s->set_colorbar(s, 0);                   // 0 = disable , 1 = enable
     }
+
     // drop down frame size for higher initial frame rate
     if (config.pixel_format == PIXFORMAT_JPEG)
     {
         s->set_framesize(s, FRAMESIZE_QVGA);
     }
 
-    // Uncomment for using a wifi instead of creating an access point.
-    // WiFi.config(local_IP, gateway, subnet);
-    // WiFi.begin(ssid, password);
-    WiFi.softAPConfig(local_IP, gateway, subnet);
-    WiFi.softAP(ssid, password);
+    return true;
+}
 
+void setup()
+{
+    delay(3000);
+    Serial.begin(115200);
+    Serial.setDebugOutput(true);
+    Serial.println("Starting...");
+
+    const bool is_ok = init_camera();
+    if (!is_ok)
+    {
+        return;
+    }
+
+    if (is_ap)
+    {
+        WiFi.softAPConfig(local_IP, gateway, subnet);
+        WiFi.softAP(ssid, password);
+    }
+    else
+    {
+        WiFi.config(local_IP, gateway, subnet);
+        WiFi.begin(ssid, password);
+    }
     WiFi.setSleep(false);
 
     startCameraServer();
 
-    Serial.print("Camera Ready! Use 'http://");
-    Serial.print(WiFi.softAPIP());
-    // Serial.print(WiFi.localIP());
-    Serial.println("' to connect");
+    delay(1000);
+    Serial.printf("Camera Ready! Use 'http://%s to connect", ((is_ap) ? WiFi.softAPIP() : WiFi.localIP()).toString().c_str());
 }
 
 void loop()
