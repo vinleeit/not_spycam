@@ -1,3 +1,5 @@
+#include "wifi_cfg.h"
+#include "portal.h"
 #include "esp_camera.h"
 #include <WiFi.h>
 
@@ -13,17 +15,6 @@
 //            seconds to process single frame. Face Detection is ENABLED if PSRAM is enabled as well
 
 #include "camera_pins.h"
-
-// ===========================
-// WiFi credentials
-// ===========================
-const char *ssid = "spycam";
-const char *password = "notspycam";
-const bool is_ap = false;
-
-IPAddress local_IP(192, 168, 0, 69);
-IPAddress gateway(192, 168, 0, 1);
-IPAddress subnet(255, 255, 255, 0);
 
 bool init_camera()
 {
@@ -130,32 +121,30 @@ void setup()
     Serial.setDebugOutput(true);
     Serial.println("Starting...");
 
-    const bool is_ok = init_camera();
-    if (!is_ok)
+    WifiCfg c;
+    if (!(loadCfg(c) && connectSTA(c)))
     {
-        return;
-    }
-
-    if (is_ap)
-    {
-        WiFi.softAPConfig(local_IP, gateway, subnet);
-        WiFi.softAP(ssid, password);
+        connectAP();
+        startPortal(AP_IP);
     }
     else
     {
-        WiFi.config(local_IP, gateway, subnet);
-        WiFi.begin(ssid, password);
+        const bool is_ok = init_camera();
+        if (!is_ok)
+        {
+            return;
+        }
+        startCameraServer();
+
+        delay(1000);
+        // Serial.printf("Camera Ready! Use 'http://%s to connect", ((is_ap) ? WiFi.softAPIP() : WiFi.localIP()).toString().c_str());
     }
-    WiFi.setSleep(false);
-
-    startCameraServer();
-
-    delay(1000);
-    Serial.printf("Camera Ready! Use 'http://%s to connect", ((is_ap) ? WiFi.softAPIP() : WiFi.localIP()).toString().c_str());
 }
 
 void loop()
 {
-    // Do nothing. Everything is done in another task by the web server
-    delay(10000);
+    if (portalMode)
+    {
+        portalLoop();
+    }
 }
